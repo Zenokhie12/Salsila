@@ -1,5 +1,5 @@
 <template>
-  <div class="relative group/card">
+  <div class="relative group/card" :data-person-id="person.id">
     <router-link
       :to="`/person/${person.id}`"
       class="group block bg-white rounded-xl border border-warm-200 px-4 py-3 hover:shadow-md hover:border-warm-300 transition-all w-44"
