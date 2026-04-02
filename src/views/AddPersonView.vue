@@ -21,15 +21,42 @@
             </svg>
           </div>
           <h2 class="font-serif text-xl text-warm-800 mb-1">
-            {{ step === 1 ? 'What is their name?' : 'When were they born?' }}
+            {{ isEditing ? 'Edit Member' : (step === 1 ? 'What is their name?' : 'When were they born?') }}
           </h2>
           <p class="text-sm text-warm-500">
-            {{ step === 1 ? 'Enter the full name of the family member.' : 'This is optional — skip if unknown.' }}
+            {{ isEditing ? 'Update the details below.' : (step === 1 ? 'Enter the full name of the family member.' : 'This is optional — skip if unknown.') }}
           </p>
         </div>
 
+        <!-- Edit mode: show both fields -->
+        <div v-if="isEditing">
+          <label class="block text-sm font-medium text-warm-700 mb-2">Full Name *</label>
+          <input
+            ref="nameInput"
+            v-model="name"
+            type="text"
+            placeholder="e.g. Ahmad bin Abdullah"
+            class="w-full px-4 py-3 rounded-lg border border-warm-300 bg-warm-50 text-warm-900 placeholder-warm-400 focus:outline-none focus:ring-2 focus:ring-warm-400 focus:border-transparent transition"
+          />
+          <p v-if="nameError" class="text-red-500 text-sm mt-2">Name is required.</p>
+
+          <label class="block text-sm font-medium text-warm-700 mb-2 mt-4">Birth Date</label>
+          <input
+            v-model="birthDate"
+            type="date"
+            class="w-full px-4 py-3 rounded-lg border border-warm-300 bg-warm-50 text-warm-900 focus:outline-none focus:ring-2 focus:ring-warm-400 focus:border-transparent transition"
+          />
+
+          <button
+            @click="save"
+            class="mt-6 w-full bg-warm-800 text-cream py-3 rounded-lg font-medium hover:bg-warm-900 transition-colors"
+          >
+            Save Changes
+          </button>
+        </div>
+
         <!-- Step 1: Name -->
-        <div v-if="step === 1">
+        <div v-else-if="step === 1">
           <label class="block text-sm font-medium text-warm-700 mb-2">Full Name *</label>
           <input
             ref="nameInput"
@@ -77,14 +104,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useFamilyStore } from '../store/family'
 
 const props = defineProps({
   linkTo: { type: String, default: null },
   relationType: { type: String, default: null },
+  id: { type: String, default: null },
 })
+
+const isEditing = computed(() => !!props.id)
 
 const router = useRouter()
 const store = useFamilyStore()
@@ -97,6 +127,14 @@ const nameError = ref(false)
 const nameInput = ref(null)
 
 onMounted(() => {
+  if (isEditing.value) {
+    const person = store.getPersonById(props.id)
+    if (person) {
+      name.value = person.name
+      birthDate.value = person.birthDate || ''
+    }
+    step.value = 2 // Show both fields for editing
+  }
   nameInput.value?.focus()
 })
 
@@ -118,6 +156,16 @@ function save() {
   if (!name.value.trim()) {
     step.value = 1
     nameError.value = true
+    return
+  }
+
+  if (isEditing.value) {
+    store.updatePerson(props.id, {
+      name: name.value.trim(),
+      birthDate: birthDate.value || null,
+    })
+    toast('Member updated!')
+    router.push(`/person/${props.id}`)
     return
   }
 

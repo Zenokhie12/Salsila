@@ -97,10 +97,32 @@ export const useFamilyStore = defineStore('family', () => {
     return person.siblingIds.map((id) => getPersonById(id)).filter(Boolean)
   }
 
+  function updatePerson(id, { name, birthDate }) {
+    const person = getPersonById(id)
+    if (person) {
+      if (name !== undefined) person.name = name
+      if (birthDate !== undefined) person.birthDate = birthDate
+    }
+  }
+
+  function deletePerson(id) {
+    // Remove references to this person from other people
+    people.value.forEach(p => {
+      if (p.fatherId === id) p.fatherId = null
+      if (p.motherId === id) p.motherId = null
+      p.siblingIds = p.siblingIds.filter(sid => sid !== id)
+    })
+    // Remove the person
+    const idx = people.value.findIndex(p => p.id === id)
+    if (idx !== -1) people.value.splice(idx, 1)
+  }
+
   return {
     people,
     addPerson,
     getPersonById,
+    updatePerson,
+    deletePerson,
     linkFather,
     linkMother,
     linkSibling,

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen bg-cream py-10 px-4">
-    <div class="max-w-2xl mx-auto">
+    <div class="max-w-5xl mx-auto">
       <div class="text-center mb-10">
         <h1 class="font-serif text-4xl font-bold text-warm-900 mb-2">Salsila</h1>
         <p class="text-warm-600 text-sm tracking-wide">Your Family Tree</p>
@@ -31,7 +31,7 @@
 
       <div v-else>
         <div class="flex items-center justify-between mb-8">
-          <h2 class="font-serif text-2xl text-warm-800">Family Members</h2>
+          <h2 class="font-serif text-2xl text-warm-800">Family Tree</h2>
           <router-link
             to="/add"
             class="inline-flex items-center gap-2 bg-warm-800 text-cream px-4 py-2 rounded-lg text-sm font-medium hover:bg-warm-900 transition-colors"
@@ -43,30 +43,7 @@
           </router-link>
         </div>
 
-        <div class="grid gap-4 sm:grid-cols-2">
-          <router-link
-            v-for="person in people"
-            :key="person.id"
-            :to="`/person/${person.id}`"
-            class="group block bg-white rounded-xl border border-warm-200 p-5 hover:shadow-md hover:border-warm-300 transition-all"
-          >
-            <div class="flex items-start gap-4">
-              <div class="w-12 h-12 rounded-full bg-warm-100 flex items-center justify-center shrink-0 group-hover:bg-warm-200 transition-colors">
-                <span class="font-serif text-lg font-semibold text-warm-600">
-                  {{ person.name.charAt(0).toUpperCase() }}
-                </span>
-              </div>
-              <div class="min-w-0">
-                <h3 class="font-serif text-lg font-semibold text-warm-900 truncate">
-                  {{ person.name }}
-                </h3>
-                <p class="text-sm text-warm-500 mt-0.5">
-                  {{ person.birthDate || 'Date unknown' }}
-                </p>
-              </div>
-            </div>
-          </router-link>
-        </div>
+        <FamilyTree />
       </div>
     </div>
   </div>
@@ -75,6 +52,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useFamilyStore } from '../store/family'
+import FamilyTree from '../components/FamilyTree.vue'
 
 const store = useFamilyStore()
 const people = computed(() => store.people)
