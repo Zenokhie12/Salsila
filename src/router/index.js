@@ -23,6 +23,12 @@ const routes = [
     component: () => import('../views/AddPersonView.vue'),
     props: true,
   },
+  {
+    path: '/edit/:id',
+    name: 'EditPerson',
+    component: () => import('../views/AddPersonView.vue'),
+    props: true,
+  },
 ]
 
 const router = createRouter({
