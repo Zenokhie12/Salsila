@@ -68,20 +68,48 @@
         </div>
       </div>
     </Teleport>
+
+    <!-- Siblings section toggle -->
+    <div v-if="showSiblingToggle && hasSiblings" class="mt-2">
+      <button
+        v-if="!showSiblings"
+        @click.stop="showSiblings = true"
+        class="flex items-center gap-1 text-xs text-warm-500 hover:text-warm-700 transition-colors"
+      >
+        <span class="w-5 h-5 rounded-full border border-warm-300 flex items-center justify-center">+</span>
+        <span>{{ siblings.length }} sibling{{ siblings.length > 1 ? 's' : '' }}</span>
+      </button>
+      <div v-else>
+        <button
+          @click.stop="showSiblings = false"
+          class="mb-2 flex items-center gap-1 text-xs text-warm-500 hover:text-warm-700 transition-colors"
+        >
+          <span class="w-5 h-5 rounded-full border border-warm-300 flex items-center justify-center">−</span>
+          <span>Hide siblings</span>
+        </button>
+        <SiblingSection :siblings="siblings" :show-sibling-toggle="false" />
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, computed } from 'vue'
 import { useFamilyStore } from '../store/family'
+import SiblingSection from './SiblingSection.vue'
 
 const props = defineProps({
   person: { type: Object, required: true },
+  showSiblingToggle: { type: Boolean, default: true },
 })
 
 const store = useFamilyStore()
 const toast = inject('toast')
 const showDeleteConfirm = ref(false)
+const showSiblings = ref(false)
+
+const siblings = computed(() => store.getSiblings(props.person))
+const hasSiblings = computed(() => siblings.value.length > 0)
 
 function confirmDelete() {
   const name = props.person.name
